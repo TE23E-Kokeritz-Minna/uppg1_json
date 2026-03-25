@@ -14,50 +14,51 @@ import com.google.gson.reflect.TypeToken;
 
 public class Main {
     public static void main(String[] args) {
-   /* // Skapa en snygg Gson-instans för läsbar JSON-output
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        Type personListType = new TypeToken<ArrayList<Person>>(){}.getType();
+        /*
+         * // Skapa en snygg Gson-instans för läsbar JSON-output
+         * Gson gson = new GsonBuilder().setPrettyPrinting().create();
+         * Type personListType = new TypeToken<ArrayList<Person>>(){}.getType();
+         * 
+         * String medlemmarStr="";
+         * String fhjalpenStr="";
+         * String avstangdaStr="";
+         * String besokandeStr="";
+         * try {
+         * // --- STEG 1: LÄSA IN ALLA FILER ---
+         * medlemmarStr = Files.readString(Paths.get("medlemmar.json"));
+         * fhjalpenStr = Files.readString(Paths.get("f_hjälpen.json"));
+         * avstangdaStr = Files.readString(Paths.get("avstängda.json"));
+         * besokandeStr = Files.readString(Paths.get("besökande.json"));
+         * 
+         * } catch (IOException e) {
+         * System.err.println("FIL fel vid inläsning: " + e.getMessage());
+         * System.out.println("Avslutar");
+         * //avslutar programmet
+         * return;
+         * }
+         * 
+         * // Omvandla till Listor
+         * List<Person> medlemmar = gson.fromJson(medlemmarStr, personListType);
+         * List<Person> fhjalpen = gson.fromJson(fhjalpenStr, personListType);
+         * List<Person> avstangda = gson.fromJson(avstangdaStr, personListType);
+         * List<Person> besokande = gson.fromJson(besokandeStr, personListType);
+         * 
+         * // --- DEL A: SÄKERHETSANSVARIGA (SNITT / INTERSECTION) ---
+         * // Vi vill ha medlemmar SOM OCKSÅ finns i första hjälpen-listan
+         * HashSet<Person> medlemmarSet = new HashSet<>(medlemmar);
+         * HashSet<Person> fhjalpenSet = new HashSet<>(fhjalpen);
+         * 
+         * medlemmarSet.retainAll(fhjalpenSet); // Behåller bara de som finns i båda
+         * IO.println("Medlemar som kan 1:a hjälpen : ");
+         * for (Person p: medlemmarSet) {
+         * IO.println(p.getNamn());
+         * }
+         * System.out.println("ANTAL: "+ medlemmarSet.size());
+         * System.out.println("------------------------------------------------");
+         * 
+         */
 
-        String medlemmarStr=""; 
-        String fhjalpenStr="";
-        String avstangdaStr="";
-        String besokandeStr="";
-        try {
-            // --- STEG 1: LÄSA IN ALLA FILER ---
-             medlemmarStr = Files.readString(Paths.get("medlemmar.json"));
-             fhjalpenStr = Files.readString(Paths.get("f_hjälpen.json"));
-             avstangdaStr = Files.readString(Paths.get("avstängda.json"));
-             besokandeStr = Files.readString(Paths.get("besökande.json"));
-
-        } catch (IOException e) {
-            System.err.println("FIL fel vid inläsning: " + e.getMessage());
-            System.out.println("Avslutar");
-            //avslutar programmet
-            return;
-        }
-        
-            // Omvandla till Listor
-            List<Person> medlemmar = gson.fromJson(medlemmarStr, personListType);
-            List<Person> fhjalpen = gson.fromJson(fhjalpenStr, personListType);
-            List<Person> avstangda = gson.fromJson(avstangdaStr, personListType);
-            List<Person> besokande = gson.fromJson(besokandeStr, personListType);
-
-            // --- DEL A: SÄKERHETSANSVARIGA (SNITT / INTERSECTION) ---
-            // Vi vill ha medlemmar SOM OCKSÅ finns i första hjälpen-listan
-            HashSet<Person> medlemmarSet = new HashSet<>(medlemmar);
-            HashSet<Person> fhjalpenSet = new HashSet<>(fhjalpen);
-
-            medlemmarSet.retainAll(fhjalpenSet); // Behåller bara de som finns i båda
-            IO.println("Medlemar som kan 1:a hjälpen : ");
-            for (Person p: medlemmarSet) {
-                IO.println(p.getNamn());
-            }
-            System.out.println("ANTAL: "+ medlemmarSet.size());   
-            System.out.println("------------------------------------------------");
-            
- */
-
-         // LÄS IN ALLA FILER
+        // LÄS IN ALLA FILER
         HashSet<Person> avstängda = new HashSet<>();
         HashSet<Person> medlemmar = new HashSet<>();
         HashSet<Person> besökande = new HashSet<>();
@@ -65,7 +66,8 @@ public class Main {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-        Type typ = new TypeToken<ArrayList<Person>>() {}.getType();
+        Type typ = new TypeToken<ArrayList<Person>>() {
+        }.getType();
         try {
 
             // AVSTÄNGDA
@@ -91,10 +93,30 @@ public class Main {
         } catch (Exception e) {
             IO.println("FEL: " + e.getMessage());
         }
-       /*  IO.println(medlemmar + "\nantal: " + medlemmar.size() + "\n");
 
-        IO.println(f_hjälpen + "\nantal: " + f_hjälpen.size()); */
+        HashSet<Person> allaDeltagare = new HashSet<>(medlemmar);
+        
         medlemmar.retainAll(f_hjälpen);
-        IO.println("MEDLEMMAR: "+ medlemmar + "\nANTAL: " + medlemmar.size()); 
+        IO.println("MEDLEMMAR: " + medlemmar + "\nANTAL: " + medlemmar.size());
+
+        String json = gson.toJson(medlemmar);
+        
+        try {
+            Files.writeString(Paths.get("medlemmar_f_hjälp.json"), json);
+        } catch (Exception e) {
+            IO.println("FEL: " + e.getMessage());
+        }
+
+        allaDeltagare.addAll(besökande);
+        allaDeltagare.removeAll(avstängda);
+        IO.println("DELTAGARE: " + allaDeltagare + "\nANTAL: " + allaDeltagare.size());
+
+        json = gson.toJson(allaDeltagare);
+        
+        try {
+            Files.writeString(Paths.get("deltagare.json"), json);
+        } catch (Exception e) {
+            IO.println("FEL: " + e.getMessage());
+        }
     }
 }

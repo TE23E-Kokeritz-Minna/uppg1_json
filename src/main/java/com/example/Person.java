@@ -11,7 +11,7 @@ public class Person {
 
     @Override
     public String toString() {
-        return namn;
+        return namn+ "\n";
     }
 
 
