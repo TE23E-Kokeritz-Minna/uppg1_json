@@ -11,16 +11,17 @@ public class Person {
 
     @Override
     public String toString() {
-        return namn+ "\n";
+        return namn + "\n";
     }
 
-
-       @Override
+    @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         Person person = (Person) o;
-        return namn.equals( person.namn);
+        return namn.equals(person.namn);
     }
 
     @Override
